@@ -1,7 +1,14 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 /**
- * 可接收错停派单的巡逻员。空闲状态由尚未完成的派单决定。
+ * Represents a patrol officer who is available when they have no active assignment.
  */
 public class PatrolOfficer {
     private final long id;

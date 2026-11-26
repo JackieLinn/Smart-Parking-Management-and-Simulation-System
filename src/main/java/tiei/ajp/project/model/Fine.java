@@ -1,10 +1,17 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 /**
- * 一条错停告警最多产生一笔罚款。
+ * A wrong-parking incident can result in at most one fine.
  */
 public class Fine {
     public enum Reason {MOVE_DEADLINE_EXCEEDED, EXIT_WITHOUT_CORRECTION, CONFIRMED_BY_REVIEW}

@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.repository;
 
 import tiei.ajp.project.model.ParkingSession;
@@ -5,11 +12,11 @@ import tiei.ajp.project.model.ParkingSession;
 import java.util.List;
 import java.util.Optional;
 
-/** 约定停车会话的保存和查询方式，业务层通过此接口访问数据。 */
+/** Defines how the service saves and retrieves parking sessions. */
 public interface ParkingSessionRepository {
     long nextId();
 
-    /** 新会话按 ID 添加，已有会话按同一个 ID 更新。 */
+    /** Inserts a new session or updates an existing session by ID. */
     void save(ParkingSession session);
 
     Optional<ParkingSession> findById(long sessionId);

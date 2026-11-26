@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.time.Duration;
@@ -7,31 +14,31 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 记录一辆车从分配车位到实际出场的一次停车过程。
+ * Tracks one vehicle's parking visit from space allocation to confirmed exit.
  */
 public class ParkingSession {
     public enum Status {
-        RESERVED,   // 车位已预留，等待车辆入场
-        ENTERED,    // 已通过入口，正在开往车位
-        PARKED,     // 已停入车位，开始计费
-        LEFT_SPACE, // 已离开车位，可以移车或开往出口
-        AT_EXIT,    // 已到出口，等待结算
-        PAID,       // 已付款，等待车辆通过出口
-        EXITED      // 已通过出口，本次停车结束
+        RESERVED,   // Space reserved, awaiting entry
+        ENTERED,    // Vehicle has entered and is driving to its space
+        PARKED,     // Vehicle has parked, so billing starts
+        LEFT_SPACE, // Vehicle has left the space and may repark or head to the exit
+        AT_EXIT,    // Vehicle has reached the exit and is awaiting payment
+        PAID,       // Payment confirmed, awaiting exit
+        EXITED      // Vehicle has exited and the session is complete
     }
 
     private final long id;
     private final String plate;
-    private final long spaceId;      // 系统分配的车位 ID
+    private final long spaceId;      // ID of the assigned space
     private final Instant reservedAt;
     private final List<SpaceOccupancy> occupancies = new ArrayList<>();
     private Status status = Status.RESERVED;
     private boolean assignedSpaceReleased;
-    // Instant 表示具体时刻。对应事件发生前，字段值为 null。
-    private Instant enteredAt;       // 实际通过入口
+    // An Instant records when an event occurred. The field is null until the event happens.
+    private Instant enteredAt;       // Time the vehicle passed the entrance barrier
     private Instant arrivedAtExit;
-    private Instant paidAt;          // 模拟付款确认
-    private Instant exitedAt;        // 实际通过出口
+    private Instant paidAt;          // Time the simulated payment was confirmed
+    private Instant exitedAt;        // Time the vehicle passed the exit barrier
 
     public ParkingSession(long id, String plate, long spaceId, Instant reservedAt) {
         this.id = id;
@@ -67,7 +74,7 @@ public class ParkingSession {
         SpaceOccupancy occupancy = lastOccupancy();
         checkEvent(Status.PARKED, occupancy == null ? null : occupancy.parkedAt(), at);
         occupancy.leave(at);
-        // 错停离位只结束实占，原分配位继续保留，直到正确停车后离位或出场。
+        // After leaving the wrong space, the assigned space stays reserved until the vehicle leaves it or exits the facility.
         if (occupancy.correctlyParked()) {
             assignedSpaceReleased = true;
         }
@@ -96,7 +103,7 @@ public class ParkingSession {
     }
 
     private void checkEvent(Status expected, Instant previous, Instant at) {
-        // 每个事件都有对应的前置状态，时间也必须按顺序推进。
+        // Each event requires a prior state and a timestamp no earlier than the previous event.
         if (status != expected) {
             throw new IllegalStateException("Expected " + expected + " but session is " + status);
         }
@@ -106,21 +113,21 @@ public class ParkingSession {
     }
 
     /**
-     * 从预留开始保留车位，车辆离位后即可分配给下一辆车。
+     * Reports whether the assigned space is still reserved for this session.
      */
     public boolean holdsSpace() {
         return !assignedSpaceReleased && status != Status.EXITED;
     }
 
     /**
-     * 已经释放的分配位只有在服务确认仍可用时才能重新保留。
+     * Hold a released assignment again once the service confirms the space is still available.
      */
     public void retainAssignedSpace() {
         assignedSpaceReleased = false;
     }
 
     /**
-     * 累加每段已经结束的实际占用，移车途中不计费。
+     * Sums completed occupancy periods and excludes time spent driving between spaces.
      */
     public Duration billableDuration() {
         if (leftSpaceAt() == null || status == Status.PARKED) {

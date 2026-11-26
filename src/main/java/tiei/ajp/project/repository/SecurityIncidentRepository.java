@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.repository;
 
 import tiei.ajp.project.model.SecurityIncident;
@@ -5,7 +12,7 @@ import tiei.ajp.project.model.SecurityIncident;
 import java.util.List;
 
 /**
- * 保存错停告警及其关联的派单、反馈和罚款。
+ * Stores wrong-parking incidents with their patrol assignments, reports, and fines.
  */
 public interface SecurityIncidentRepository {
     long nextId();

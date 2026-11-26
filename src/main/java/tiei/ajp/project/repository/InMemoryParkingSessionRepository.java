@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.repository;
 
 import tiei.ajp.project.model.ParkingSession;
@@ -8,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * 将会话按 ID 存在内存中。每次新建仓储都从空数据开始。
+ * Stores sessions by ID in memory. Each repository instance starts empty.
  */
 public class InMemoryParkingSessionRepository implements ParkingSessionRepository {
     private final Map<Long, ParkingSession> sessions = new HashMap<>();

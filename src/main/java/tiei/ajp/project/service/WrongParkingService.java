@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.service;
 
 import tiei.ajp.project.model.Fine;
@@ -17,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 由停车服务调用，管理错停告警、巡逻队列和罚款。
+ * Handles wrong-parking incidents, the patrol queue, and fines for the parking service.
  */
 public class WrongParkingService {
     private final SecurityIncidentRepository incidents;
@@ -56,7 +63,7 @@ public class WrongParkingService {
     }
 
     private void checkDeadline(SecurityIncident incident, Instant at) {
-        // 截止时刻的离位仍算及时。定时检查和设备事件使用同一模拟时间。
+        // Leaving at the deadline counts as on time. Deadline checks and device events use the same simulated clock.
         if (incident.fine() == null && incident.allowsAutomaticFine() && at.isAfter(incident.moveDeadline())) {
             incident.issueFine(Fine.Reason.MOVE_DEADLINE_EXCEEDED, fineAmount, at);
             incidents.save(incident);

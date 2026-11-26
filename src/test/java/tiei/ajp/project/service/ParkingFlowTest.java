@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.service;
 
 import org.junit.jupiter.api.Test;
@@ -16,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ParkingFlowTest {
     @Test
     void vehicleReservesParksPaysAndExits() {
-        // 准备两个车位，用固定时间模拟设备上报的事件。
+        // Set up two spaces and use fixed timestamps to simulate device events.
         ParkingSpace firstSpace = new ParkingSpace(101L, "B-X9");
         ParkingSpace secondSpace = new ParkingSpace(102L, "B-X10");
         ParkingSessionRepository sessions = new InMemoryParkingSessionRepository();
@@ -32,7 +39,7 @@ class ParkingFlowTest {
         assertEquals(firstSpace.id(), reserved.spaceId());
         assertEquals(ParkingSession.Status.RESERVED, reserved.status());
 
-        // 第一个车位已预留，下一辆车只能分到第二个车位。
+        // The first space is reserved, so the next vehicle gets the second space.
         long otherId = parking.reserveSpace("DEMO-456", enteredAt);
         assertEquals(secondSpace.id(), sessions.findById(otherId).orElseThrow().spaceId());
 
@@ -40,7 +47,7 @@ class ParkingFlowTest {
         parking.confirmParking(sessionId, firstSpace.id(), parkedAt);
         assertThrows(IllegalStateException.class, () -> parking.reserveSpace("DEMO-789", parkedAt));
 
-        // 离位即停止计费并释放车位，此时车辆仍在场内。
+        // Leaving the space stops billing and releases the space while the vehicle is still in the facility.
         parking.confirmSpaceDeparture(sessionId, leftSpaceAt);
         ParkingSession departed = sessions.findById(sessionId).orElseThrow();
         assertEquals(Duration.ofMinutes(115), departed.billableDuration());
@@ -48,7 +55,7 @@ class ParkingFlowTest {
         long nextId = parking.reserveSpace("DEMO-789", leftSpaceAt);
         assertEquals(firstSpace.id(), sessions.findById(nextId).orElseThrow().spaceId());
 
-        // 模拟付款后再确认出场，最后检查会话保存的四个时间点。
+        // Simulate payment, confirm exit, and check all four recorded timestamps.
         assertThrows(IllegalStateException.class, () -> parking.confirmExit(sessionId, exitedAt));
         parking.confirmPayment(sessionId, exitedAt);
         assertEquals(ParkingSession.Status.PAID, sessions.findById(sessionId).orElseThrow().status());

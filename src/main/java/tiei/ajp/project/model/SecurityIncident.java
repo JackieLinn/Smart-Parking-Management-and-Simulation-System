@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.math.BigDecimal;
@@ -8,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 一次尚未纠正的错停可以经历多个车位，期间沿用同一派单和截止时间。
+ * Tracks one unresolved wrong-parking incident across spaces with the same patrol assignment and deadline.
  */
 public class SecurityIncident {
     public enum Status {QUEUED, ASSIGNED, NOTIFIED, REVIEW_REQUIRED, RESOLVED, CLOSED_UNCORRECTED}
@@ -46,7 +53,7 @@ public class SecurityIncident {
         if (!isOpen() || assignment == null || assignment.officerId() != message.officerId()) {
             throw new IllegalStateException("Officer does not have an active assignment for this incident");
         }
-        // 同类反馈只接受一次，重复通知不会重置移车截止时间。
+        // Accept each report type once so a repeated notification preserves the original deadline.
         if (messages.stream().anyMatch(previous -> previous.type() == message.type())) {
             return;
         }

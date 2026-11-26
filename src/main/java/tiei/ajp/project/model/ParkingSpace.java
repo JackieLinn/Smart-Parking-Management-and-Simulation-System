@@ -1,6 +1,13 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
-/** 车位的固定资料。业务逻辑用数字 ID 关联，界面可显示 B-X9 这样的编号。 */
+/** Identifies a parking space by its numeric ID and a display code such as B-X9. */
 public class ParkingSpace {
     private final long id;
     private final String code;

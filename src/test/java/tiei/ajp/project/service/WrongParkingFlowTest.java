@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.service;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +39,7 @@ class WrongParkingFlowTest {
             List.of(new ParkingSpace(101L, "B-X9"), new ParkingSpace(102L, "B-X10"),
                     new ParkingSpace(103L, "B-X11"), new ParkingSpace(104L, "B-X12")),
             sessions, new InMemorySecurityIncidentRepository(),
-            List.of(new PatrolOfficer(OFFICER_ID, "P01", "巡逻员 01")), Duration.ofMinutes(3), FINE_AMOUNT);
+            List.of(new PatrolOfficer(OFFICER_ID, "P01", "Patrol Officer 01")), Duration.ofMinutes(3), FINE_AMOUNT);
 
     @Test
     void movingAtDeadlineClosesIncidentAndBillsOnlyActualOccupancy() {
@@ -44,7 +51,7 @@ class WrongParkingFlowTest {
         assertEquals(103L, session(parking.reserveSpace("OTHER", minute(1))).spaceId());
 
         parking.reportPatrolMessage(incident.id(),
-                new PatrolMessage(OFFICER_ID, PatrolMessage.Type.ARRIVED, "已到场", minute(2)));
+                new PatrolMessage(OFFICER_ID, PatrolMessage.Type.ARRIVED, "Arrived at the scene", minute(2)));
         parking.checkMoveDeadlines(minute(8));
         assertNull(incident.moveDeadline());
         assertNull(incident.fine());
@@ -116,7 +123,7 @@ class WrongParkingFlowTest {
         notifyDriver(incident, minute(2));
         parking.confirmSpaceDeparture(sessionId, 102L, minute(4));
 
-        // 截止时仍在行驶，等下一次停入事件再判断是否超时。
+        // If the vehicle is still moving at the deadline, wait for the next parking event before assessing a fine.
         parking.checkMoveDeadlines(minute(6));
         assertNull(incident.fine());
         parking.confirmParking(sessionId, 103L, minute(7));
@@ -232,7 +239,7 @@ class WrongParkingFlowTest {
 
     private void notifyDriver(SecurityIncident incident, Instant at) {
         parking.reportPatrolMessage(incident.id(),
-                new PatrolMessage(OFFICER_ID, PatrolMessage.Type.DRIVER_NOTIFIED, "已提醒司机移车", at));
+                new PatrolMessage(OFFICER_ID, PatrolMessage.Type.DRIVER_NOTIFIED, "Asked the driver to move the vehicle", at));
     }
 
     private Instant minute(long minutes) {

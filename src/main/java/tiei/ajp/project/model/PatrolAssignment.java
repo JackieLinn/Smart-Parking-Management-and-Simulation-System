@@ -1,9 +1,16 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.time.Instant;
 
 /**
- * 告警派给谁、何时交接，以及巡逻员何时可以接下一单。
+ * Records the assigned officer, dispatch time, and when the officer becomes available again.
  */
 public class PatrolAssignment {
     private final long officerId;

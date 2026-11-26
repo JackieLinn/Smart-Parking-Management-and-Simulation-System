@@ -1,9 +1,16 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.time.Instant;
 
 /**
- * 传感器确认的一段实际占用，移车后会产生新的记录。
+ * Records one sensor-confirmed occupancy period. Parking in another space starts a new period.
  */
 public class SpaceOccupancy {
     private final long spaceId;

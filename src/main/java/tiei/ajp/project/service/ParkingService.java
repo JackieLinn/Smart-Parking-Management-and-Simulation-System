@@ -1,3 +1,10 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.service;
 
 import tiei.ajp.project.model.ParkingSession;
@@ -17,7 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * 协调车位分配和停车事件。会话负责校验状态，仓储负责保存结果。
+ * Coordinates space allocation and parking events. The session validates state transitions and the repository saves the results.
  */
 public class ParkingService {
     private final List<ParkingSpace> spaces;
@@ -38,7 +45,7 @@ public class ParkingService {
     }
 
     /**
-     * 预留第一个可用车位，返回用于后续操作的停车会话 ID。
+     * Reserves the first available space and returns the session ID for subsequent events.
      */
     public synchronized long reserveSpace(String licensePlate, Instant at) {
         String plate = licensePlate.strip().toUpperCase(Locale.ROOT);
@@ -47,14 +54,14 @@ public class ParkingService {
         }
 
         List<ParkingSession> existingSessions = sessions.findAll();
-        // 同一车牌的上一次会话完成出场后，才能创建下一次会话。
+        // A plate can start a new session only after the previous session records the vehicle's exit.
         boolean hasActiveSession = existingSessions.stream()
                 .anyMatch(session -> session.plate().equals(plate) && session.status() != ParkingSession.Status.EXITED);
         if (hasActiveSession) {
             throw new IllegalStateException("Vehicle already has an active parking session");
         }
 
-        // 预留和实际占用分别检查，错停车位也要从可分配列表排除。
+        // Check reservations and actual occupancy separately so a space occupied by the wrong vehicle is unavailable.
         ParkingSpace space = spaces.stream()
                 .filter(candidate -> existingSessions.stream().noneMatch(session ->
                         reservesSpace(session, candidate.id()) || session.occupiesSpace(candidate.id())))
@@ -89,7 +96,7 @@ public class ParkingService {
         if (correctlyParked) {
             wrongParking.close(sessionId, true, at);
         } else {
-            // 下次错停时，原车位可能已在正常离位后分给另一辆车。
+            // If the vehicle parks incorrectly again, its original space may already be reserved for another vehicle.
             boolean assignedSpaceTaken = otherSessions.stream().anyMatch(other ->
                     reservesSpace(other, session.spaceId()) || other.occupiesSpace(session.spaceId()));
             if (!assignedSpaceTaken) {
@@ -101,7 +108,7 @@ public class ParkingService {
     }
 
     /**
-     * 结束当段实际占用，并检查离位是否晚于移车截止时间。
+     * Ends the current occupancy and checks whether the vehicle left after the move deadline.
      */
     public synchronized void confirmSpaceDeparture(long sessionId, Instant at) {
         confirmSpaceDeparture(requireSession(sessionId), at);
@@ -123,7 +130,7 @@ public class ParkingService {
         sessions.save(session);
     }
 
-    /** 出口到达时判定是否逃避处理。结算前通过 wrongParkingFineTotal 查询罚款。 */
+    /** Checks for unresolved wrong parking at the exit. Call {@code wrongParkingFineTotal} before settlement. */
     public synchronized void confirmExitArrival(long sessionId, Instant at) {
         ParkingSession session = requireSession(sessionId);
         session.confirmExitArrival(at);
@@ -162,7 +169,7 @@ public class ParkingService {
         wrongParking.report(incidentId, message);
     }
 
-    /** 仿真时钟推进时，先处理到当前时刻的设备事件，再检查实占是否超时。 */
+    /** Process device events through the current simulation time before checking move deadlines. */
     public synchronized void checkMoveDeadlines(Instant at) {
         for (ParkingSession session : sessions.findAll()) {
             if (session.status() == ParkingSession.Status.PARKED) {

@@ -1,10 +1,17 @@
+/*
+ * Group members
+ * 2026248015 Lin Xiaoyi
+ * 2026248027 Ren Zongxuan
+ * 2026248068 Tang Chuanyue
+ */
+
 package tiei.ajp.project.model;
 
 import java.time.Instant;
 import java.util.Objects;
 
 /**
- * 巡逻员反馈，只有 DRIVER_NOTIFIED 表示已把移车要求告知司机。
+ * Records a patrol report. The {@code DRIVER_NOTIFIED} type confirms the officer asked the driver to move.
  */
 public class PatrolMessage {
     public enum Type {ARRIVED, DRIVER_NOTIFIED}
