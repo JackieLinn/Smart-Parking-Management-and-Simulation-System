@@ -9,6 +9,7 @@ package tiei.ajp.project.service;
 
 import tiei.ajp.project.model.ParkingSession;
 import tiei.ajp.project.model.ParkingSpace;
+import tiei.ajp.project.model.ParkingUser;
 import tiei.ajp.project.model.PatrolMessage;
 import tiei.ajp.project.model.PatrolOfficer;
 import tiei.ajp.project.model.SecurityIncident;
@@ -47,7 +48,14 @@ public class ParkingService {
     /**
      * Reserves the first available space and returns the session ID for subsequent events.
      */
-    public synchronized long reserveSpace(String licensePlate, Instant at) {
+    public long reserveSpace(String licensePlate, Instant at) {
+        return reserveSpace(licensePlate, null, at);
+    }
+
+    /**
+     * Reserves a space for a known account, or for an occasional user if no account is supplied.
+     */
+    public synchronized long reserveSpace(String licensePlate, ParkingUser user, Instant at) {
         String plate = licensePlate.strip().toUpperCase(Locale.ROOT);
         if (plate.isEmpty()) {
             throw new IllegalArgumentException("License plate is required");
@@ -69,7 +77,7 @@ public class ParkingService {
                 .orElseThrow(() -> new IllegalStateException("No parking space available"));
 
         long sessionId = sessions.nextId();
-        sessions.save(new ParkingSession(sessionId, plate, space.id(), at));
+        sessions.save(new ParkingSession(sessionId, plate, space.id(), at, user));
         return sessionId;
     }
 
@@ -130,7 +138,9 @@ public class ParkingService {
         sessions.save(session);
     }
 
-    /** Checks for unresolved wrong parking at the exit. Call {@code wrongParkingFineTotal} before settlement. */
+    /**
+     * Checks for unresolved wrong parking at the exit. Call {@code wrongParkingFineTotal} before settlement.
+     */
     public synchronized void confirmExitArrival(long sessionId, Instant at) {
         ParkingSession session = requireSession(sessionId);
         session.confirmExitArrival(at);
@@ -169,7 +179,9 @@ public class ParkingService {
         wrongParking.report(incidentId, message);
     }
 
-    /** Process device events through the current simulation time before checking move deadlines. */
+    /**
+     * Process device events through the current simulation time before checking move deadlines.
+     */
     public synchronized void checkMoveDeadlines(Instant at) {
         for (ParkingSession session : sessions.findAll()) {
             if (session.status() == ParkingSession.Status.PARKED) {

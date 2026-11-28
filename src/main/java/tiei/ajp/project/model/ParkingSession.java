@@ -29,6 +29,8 @@ public class ParkingSession {
 
     private final long id;
     private final String plate;
+    private final Long userId;
+    private final UserType userType;
     private final long spaceId;      // ID of the assigned space
     private final Instant reservedAt;
     private final List<SpaceOccupancy> occupancies = new ArrayList<>();
@@ -41,8 +43,15 @@ public class ParkingSession {
     private Instant exitedAt;        // Time the vehicle passed the exit barrier
 
     public ParkingSession(long id, String plate, long spaceId, Instant reservedAt) {
+        this(id, plate, spaceId, reservedAt, null);
+    }
+
+    public ParkingSession(long id, String plate, long spaceId, Instant reservedAt, ParkingUser user) {
         this.id = id;
         this.plate = Objects.requireNonNull(plate);
+        // Keep the type used for this visit even if the account changes later.
+        this.userId = user == null ? null : user.id();
+        this.userType = user == null ? UserType.OCCASIONAL : user.type();
         this.spaceId = spaceId;
         this.reservedAt = Objects.requireNonNull(reservedAt);
     }
@@ -158,6 +167,15 @@ public class ParkingSession {
 
     public String plate() {
         return plate;
+    }
+
+    /** Returns the account ID, or null for a visit without an account. */
+    public Long userId() {
+        return userId;
+    }
+
+    public UserType userType() {
+        return userType;
     }
 
     public long spaceId() {

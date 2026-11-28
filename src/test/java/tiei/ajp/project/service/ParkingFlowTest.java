@@ -10,6 +10,8 @@ package tiei.ajp.project.service;
 import org.junit.jupiter.api.Test;
 import tiei.ajp.project.model.ParkingSession;
 import tiei.ajp.project.model.ParkingSpace;
+import tiei.ajp.project.model.ParkingUser;
+import tiei.ajp.project.model.UserType;
 import tiei.ajp.project.repository.InMemoryParkingSessionRepository;
 import tiei.ajp.project.repository.ParkingSessionRepository;
 
@@ -18,6 +20,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ParkingFlowTest {
@@ -38,10 +41,16 @@ class ParkingFlowTest {
         ParkingSession reserved = sessions.findById(sessionId).orElseThrow();
         assertEquals(firstSpace.id(), reserved.spaceId());
         assertEquals(ParkingSession.Status.RESERVED, reserved.status());
+        assertNull(reserved.userId());
+        assertEquals(UserType.OCCASIONAL, reserved.userType());
 
         // The first space is reserved, so the next vehicle gets the second space.
-        long otherId = parking.reserveSpace("DEMO-456", enteredAt);
-        assertEquals(secondSpace.id(), sessions.findById(otherId).orElseThrow().spaceId());
+        ParkingUser subscriber = new ParkingUser(201L, "Demo Subscriber", UserType.SUBSCRIBER);
+        long otherId = parking.reserveSpace("DEMO-456", subscriber, enteredAt);
+        ParkingSession otherSession = sessions.findById(otherId).orElseThrow();
+        assertEquals(secondSpace.id(), otherSession.spaceId());
+        assertEquals(subscriber.id(), otherSession.userId());
+        assertEquals(UserType.SUBSCRIBER, otherSession.userType());
 
         parking.confirmEntry(sessionId, enteredAt);
         parking.confirmParking(sessionId, firstSpace.id(), parkedAt);
